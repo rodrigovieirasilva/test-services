@@ -11,7 +11,7 @@ class Context {
   }
 }
 
-const ThemeContext = createContext<Context | null>(null);
+const ThemeContext = createContext<Context>(null!);
 
 class Teste {
   private interval;
@@ -27,7 +27,7 @@ class Teste {
 function Outro() {
   const { teste } = useContext<Context>(ThemeContext);
   const [a, setA] = useState<number>(teste.a);
-  componentWillUnmount
+  //componentWillUnmount
   setInterval(() => setA(teste.a), 1000);
   return <div>Teste:{a}</div>;
 }
