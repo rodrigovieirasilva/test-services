@@ -4,6 +4,10 @@ export class PriceFeedsClient implements IPriceFeedsClient {
   private interval?: number;
   private increment = 0;
 
+  get isConnected() {
+    return !!this.interval;
+  }
+
   connect(onMessage: OnMessage): void {
     this.interval = setInterval(
       () =>
@@ -16,6 +20,7 @@ export class PriceFeedsClient implements IPriceFeedsClient {
   }
   close(): void {
     clearInterval(this.interval);
+    this.interval = undefined;
   }
   subscribe(priceFeedsId: string): void {
     console.log(`subscribed ${priceFeedsId}`);

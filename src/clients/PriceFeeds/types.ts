@@ -6,6 +6,7 @@ export interface PriceFeedsMessage {
 }
 export type OnMessage = (message: PriceFeedsMessage) => void;
 export interface IPriceFeedsClient {
+  isConnected: boolean;
   connect(onMessage: OnMessage): void;
   close(): void;
   subscribe(priceFeedsId: string): void;
