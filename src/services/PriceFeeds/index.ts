@@ -27,6 +27,9 @@ export class PriceFeedsService implements IPriceFeedsService {
   offUpdate(assetId: AssetId, listener: UpdatePriceFeedsListener): void {
     window.removeEventListener(mountEventName(assetId), listener);
   }
+  destroy() {
+    this.priceFeedsClient.close();
+  }
 
   private safeConnect() {
     if (!this.priceFeedsClient.isConnected) {

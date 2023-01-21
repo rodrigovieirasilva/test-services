@@ -1,39 +1,56 @@
-import { useState, useContext } from 'react';
+import { useState, useContext, useEffect } from 'react';
 import reactLogo from './assets/react.svg';
 import './App.css';
 
 import { createContext } from 'react';
+import {
+  InitialContext,
+  IServicesContext,
+  ServicesContext,
+} from './contexts/Services';
+import { UpdatePriceFeedsEvent } from './services/PriceFeeds/types';
 
-class Context {
-  public teste: Teste;
-  constructor() {
-    this.teste = new Teste();
-  }
+interface LoggedLayoutProps {
+  children: JSX.Element;
 }
 
-const ThemeContext = createContext<Context>(null!);
+function PriceComponent() {
+  const { priceFeedsService } = useContext<IServicesContext>(ServicesContext);
+  const [price, setPrice] = useState<number>();
 
-class Teste {
-  private interval;
-  public a = 0;
-  constructor() {
-    this.interval = setInterval(() => {
-      this.a += 1;
-      console.log(this.a);
-    }, 1000);
-  }
+  useEffect(() => {
+    const assetId = {
+      ticker: 'PETR4',
+      exchange_iso10383: 'XBSP',
+    };
+    priceFeedsService.subscribe({
+      assetId,
+      price_feeds_id: 'instrument_morningstar',
+      instrument_morningstar: '56.1.PETR4',
+    });
+    const onUpdate = ({ detail }: UpdatePriceFeedsEvent) =>
+      setPrice(detail.data.price);
+    priceFeedsService.onUpdate(assetId, onUpdate);
+    return () => priceFeedsService.offUpdate(assetId, onUpdate);
+  });
+  return <p> Price: {price} </p>;
 }
+function LoggedLayout({ children }: LoggedLayoutProps) {
+  const [context] = useState(InitialContext);
 
-function Outro() {
-  const { teste } = useContext<Context>(ThemeContext);
-  const [a, setA] = useState<number>(teste.a);
-  //componentWillUnmount
-  setInterval(() => setA(teste.a), 1000);
-  return <div>Teste:{a}</div>;
+  useEffect(() => {
+    return () => context.destroy();
+  }, [context]);
+
+  return (
+    <ServicesContext.Provider value={context}>
+      {children}
+    </ServicesContext.Provider>
+  );
 }
 
 function App() {
-  const [count, setCount] = useState(0);
+  const [logged, setLogged] = useState(false);
 
   return (
     <div className="App">
@@ -47,24 +64,17 @@ function App() {
       </div>
       <h1>Vite + React</h1>
       <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
+        <button onClick={() => setLogged((logged) => !logged)}>
+          {logged ? 'Click to Sign-Out' : 'Click to Sign-In'}
         </button>
-        <button onClick={() => setCount((count) => count - 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
+        {logged ? (
+          <LoggedLayout>
+            <PriceComponent></PriceComponent>
+          </LoggedLayout>
+        ) : (
+          <p>No Price</p>
+        )}
       </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-      {count > 0 && count < 3 ? (
-        <ThemeContext.Provider value={new Context()}>
-          <Outro />
-        </ThemeContext.Provider>
-      ) : null}
     </div>
   );
 }

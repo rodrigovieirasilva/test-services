@@ -1,4 +1,4 @@
-import { ITokenProvider } from './types';
+import { ITokenProvider } from '../../entities/Auth';
 
 export class BaseAxiosClient {
   constructor(tokenProvider: ITokenProvider) {}

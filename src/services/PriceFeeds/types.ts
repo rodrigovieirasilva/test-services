@@ -36,4 +36,5 @@ export interface IPriceFeedsService {
   unsubscribe(asset: PriceFeedsAsset): void;
   onUpdate(assetId: AssetId, listener: UpdatePriceFeedsListener): void;
   offUpdate(assetId: AssetId, listener: UpdatePriceFeedsListener): void;
+  destroy(): void;
 }
