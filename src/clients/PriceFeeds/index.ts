@@ -21,6 +21,7 @@ export class PriceFeedsClient implements IPriceFeedsClient {
   close(): void {
     clearInterval(this.interval);
     this.interval = undefined;
+    this.increment = 0;
   }
   subscribe(priceFeedsId: string): void {
     console.log(`subscribed ${priceFeedsId}`);
