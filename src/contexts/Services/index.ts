@@ -2,13 +2,16 @@ import { createContext } from 'react';
 import { PriceFeedsClient } from '../../clients/PriceFeeds';
 import { UserBFFClient } from '../../clients/UserBFF';
 import { AuthService } from '../../services/Auth';
+import { IAuthService } from '../../services/Auth/types';
 import { PriceFeedsService } from '../../services/PriceFeeds';
+import { IPriceFeedsService } from '../../services/PriceFeeds/types';
 import { UserBFFService } from '../../services/UserBFF';
+import { IUserBFFService } from '../../services/UserBFF/types';
 
 export interface IServicesContext {
-  userBFFService: UserBFFService;
-  priceFeedsService: PriceFeedsService;
-  authService: AuthService;
+  userBFFService: IUserBFFService;
+  priceFeedsService: IPriceFeedsService;
+  authService: IAuthService;
 }
 
 export class ServicesContextClass implements IServicesContext {
@@ -48,3 +51,35 @@ export class ServicesContextClass implements IServicesContext {
 
 export const ServicesContext = createContext<IServicesContext>(null!);
 export const InitialContext = new ServicesContextClass();
+
+interface IService {}
+
+type ValueMapContextType = IService | (() => IService);
+
+const cache = new Map<string, ValueMapContextType>();
+
+const get = <T extends IService>(serviceName: string): T => {
+  const result = cache.get(serviceName);
+  console.log(typeof result);
+  if (result) {
+    if (typeof result === 'function') {
+      return result();
+    }
+  }
+  return result as T;
+};
+
+const set = (serviceName: string, service: ValueMapContextType): void => {
+  cache.set(serviceName, service);
+};
+class Outra implements IService {
+  constructor() {
+    console.log('testeOutra');
+  }
+  teste() {
+    console.log('teste function');
+  }
+}
+const OutraServiceName = 'OutraService';
+set(OutraServiceName, () => new Outra());
+const outra = get<Outra>(OutraServiceName);
